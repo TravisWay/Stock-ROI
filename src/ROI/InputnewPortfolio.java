@@ -1,14 +1,23 @@
 package ROI;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Iterator;
+import java.util.Vector;
+import java.io.*;
+import javax.swing.*;
+import javax.swing.table.*;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import java.awt.Font;
-import javax.swing.JTextField;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import javax.swing.JFileChooser;
+
 
 public class InputnewPortfolio extends JFrame{
 
@@ -16,6 +25,57 @@ public class InputnewPortfolio extends JFrame{
 	private JTextField textField;
 	private JTextField textField_1;
 	private JButton btnNewButton;
+	
+	private String[] columnNames =
+		{"Date", "Share", "Buy or Sell", "# of Shares", "Price per share", "Amount", "Position nr"};
+
+	
+	private Object[][] data;
+	   
+	    private DefaultTableModel tableModel = new DefaultTableModel(data, columnNames);
+	    
+	     
+	    private JFileChooser myJFileChooser = new JFileChooser(new File("."));
+	     
+	    private void saveTable() {
+	        if (myJFileChooser.showSaveDialog(this) ==
+	                JFileChooser.APPROVE_OPTION ) {
+	            saveTable(myJFileChooser.getSelectedFile());
+	        }
+	    }
+	     
+	    private void saveTable(File file) {
+	        try {
+	            ObjectOutputStream out = new ObjectOutputStream(
+	                    new FileOutputStream(file));
+	                out.writeObject(tableModel.getDataVector());
+	                out.close();
+	            }
+	            catch (Exception ex) {
+	                ex.printStackTrace();
+	            }
+	    }
+	    private void loadTable() {
+	        if (myJFileChooser.showOpenDialog(this) ==
+	                JFileChooser.APPROVE_OPTION )
+	            loadTable(myJFileChooser.getSelectedFile());
+	    }
+	     
+	    private void loadTable(File file) {
+	        try {
+	            ObjectInputStream in = new ObjectInputStream(
+	            new FileInputStream(file));
+	            Vector rowData = (Vector)in.readObject();
+	            Iterator itr = rowData.iterator();
+	            while(itr.hasNext()) {
+	                tableModel.addRow((Vector) itr.next());
+	            }
+	            in.close();
+	        }
+	        catch (Exception ex) {
+	            ex.printStackTrace();
+	        }
+	    }
 
 	/**
 	 * Launch the application.
@@ -72,6 +132,7 @@ public class InputnewPortfolio extends JFrame{
 		btnNewButton = new JButton("Save");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				saveTable();
 				frame.dispose();
 				InputforShare Shares = new InputforShare();
 				Shares.NewScreen();
